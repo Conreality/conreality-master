@@ -1,5 +1,15 @@
 ************************
-Conreality Master Server
+Conreality Master Daemon
 ************************
 
-https://wiki.conreality.org/Master-Server
+.. image:: https://img.shields.io/badge/license-Public%20Domain-blue.svg
+   :alt: Project license
+   :target: https://unlicense.org/
+
+.. image:: https://img.shields.io/travis/conreality/conreality-master/master.svg
+   :alt: Travis CI build status
+   :target: https://travis-ci.org/conreality/conreality-master
+
+|
+
+https://wiki.conreality.org/Master
