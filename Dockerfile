@@ -6,4 +6,6 @@ ENV LANG en_US.UTF-8
 
 RUN apk add --no-cache erlang pllua postgresql
 
+VOLUME /srv
+
 ENTRYPOINT ["/bin/sh"]
