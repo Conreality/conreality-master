@@ -6,7 +6,7 @@
 mkdir -p "$PGDATA"
 chown -R "$PGUSER:$PGUSER" "$PGDATA"
 chmod 700 "$PGDATA"
-su-exec "$PGUSER" pg_ctl initdb -D "$PGDATA" -o "-U $PGUSER"
+/sbin/su-exec "$PGUSER" /usr/bin/pg_ctl initdb -D "$PGDATA" -o "-U $PGUSER"
 
 # See: https://www.postgresql.org/docs/10/static/auth-pg-hba-conf.html
 echo 'local all all trust' > "$PGDATA/pg_hba.conf"

@@ -12,5 +12,8 @@ VOLUME /srv
 EXPOSE 5432
 
 COPY .docker/entrypoint.sh .
+COPY .docker/pg_ctl.sh /usr/local/bin/pg_ctl
+COPY .docker/postgres.sh /usr/local/bin/postgres
+
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["/bin/sh"]
