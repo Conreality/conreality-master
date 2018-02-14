@@ -13,3 +13,15 @@ Conreality Master Daemon
 |
 
 https://wiki.conreality.org/Master
+
+Prerequisites
+=============
+
+Runtime Prerequisites
+---------------------
+
+* Erlang 20.2+
+* PostgreSQL 10.2+
+* PostGIS 2.4+
+* PL/Lua 1.1+
+* FreeSWITCH 1.6.19+
