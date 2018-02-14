@@ -2,7 +2,7 @@ FROM alpine:3.7
 
 LABEL maintainer="Arto Bendiken <arto@conreality.org>"
 
-RUN apk add --no-cache erlang pllua postgresql su-exec
+RUN apk add --no-cache erlang freeswitch pllua postgresql su-exec
 
 ENV TZ="UTC"
 ENV LANG="en_US.UTF-8"
