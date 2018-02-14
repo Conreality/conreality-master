@@ -1,8 +1,9 @@
-FROM alpine:3.7
+FROM alpine:edge
 
 LABEL maintainer="Arto Bendiken <arto@conreality.org>"
 
-RUN apk add --no-cache erlang freeswitch pllua postgresql su-exec
+RUN echo '@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
+RUN apk add --no-cache erlang freeswitch pllua postgis@testing postgresql su-exec
 
 ENV TZ="UTC"
 ENV LANG="en_US.UTF-8"
