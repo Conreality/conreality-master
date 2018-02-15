@@ -3,10 +3,12 @@
 # See: https://www.postgresql.org/docs/10/static/creating-cluster.html
 # See: https://www.postgresql.org/docs/10/static/app-pg-ctl.html
 # See: https://www.postgresql.org/docs/10/static/app-initdb.html
-mkdir -p "$PGDATA"
-chown -R "$PGUSER:$PGUSER" "$PGDATA"
-chmod 700 "$PGDATA"
-/sbin/su-exec "$PGUSER" /usr/bin/pg_ctl initdb -D "$PGDATA" -o "-U $PGUSER"
+if [ -z "$(ls -1A "$PGDATA")" ]; then
+  mkdir -p "$PGDATA"
+  chown -R "$PGUSER:$PGUSER" "$PGDATA"
+  chmod 700 "$PGDATA"
+  /sbin/su-exec "$PGUSER" /usr/bin/pg_ctl initdb -D "$PGDATA" -o "-U $PGUSER"
+fi
 
 # See: https://www.postgresql.org/docs/10/static/auth-pg-hba-conf.html
 echo 'local all all trust' > "$PGDATA/pg_hba.conf"
