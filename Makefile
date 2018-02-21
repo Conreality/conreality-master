@@ -36,7 +36,10 @@ mostlyclean: clean
 shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
+postgres: .built
+	$(DOCKER) run --rm -it -p5432:5432 $(IMAGE) postgres
+
 .PHONY: check uninstall clean distclean mostlyclean
-.PHONY: shell
+.PHONY: shell postgres
 .SECONDARY:
 .SUFFIXES:
