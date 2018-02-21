@@ -1,0 +1,6 @@
+erlang
+freeswitch
+pllua
+postgis@testing
+postgresql
+su-exec

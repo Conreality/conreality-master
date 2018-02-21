@@ -10,12 +10,16 @@ VOLUME /srv
 ENV PGUSER="postgres" PGDATA="/srv/postgres"
 EXPOSE 5432
 
-COPY .docker/pg_ctl.sh /usr/local/bin/pg_ctl
-COPY .docker/postgres.sh /usr/local/bin/postgres
-COPY .docker/install.sh ./
-RUN ./install.sh
+COPY .docker/install.sh .docker/packages.txt /root/
+RUN /root/install.sh /root/packages.txt
 
-COPY .docker/entrypoint.sh ./
-ENTRYPOINT ["./entrypoint.sh"]
+COPY .docker/configure.sh /root/
+RUN /root/configure.sh
+
+COPY .docker/bin/pg_ctl /usr/local/bin/pg_ctl
+COPY .docker/bin/postgres /usr/local/bin/postgres
+
+COPY .docker/entrypoint.sh /tmp/
+ENTRYPOINT ["/tmp/entrypoint.sh"]
 
 CMD ["/bin/sh"]

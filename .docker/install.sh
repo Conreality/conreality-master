@@ -1,9 +1,4 @@
 #!/bin/sh
 
-apk add --no-cache \
-  erlang           \
-  freeswitch       \
-  pllua            \
-  postgis@testing  \
-  postgresql       \
-  su-exec
+# Install all packages:
+apk add --no-cache $(cat $1)
