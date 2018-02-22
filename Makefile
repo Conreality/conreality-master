@@ -40,7 +40,7 @@ echo: .built
 	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
 
 freeswitch: .built
-	$(DOCKER) run --rm -it -p5060:5060 -p5080:5080 -p8021:8021/tcp -p16384-16484:16384-16484/udp $(IMAGE) freeswitch
+	$(DOCKER) run --rm -it -p5060:5060 -p5080:5080 -p8021:8021/tcp -p16384-16484:16384-16484/udp $(IMAGE) freeswitch -np -nosql -nonat -nonatmap -c
 
 postgres: .built
 	$(DOCKER) run --rm -it -p5432:5432/tcp $(IMAGE) postgres
