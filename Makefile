@@ -36,6 +36,9 @@ mostlyclean: clean
 shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
+echo: .built
+	$(DOCKER) run --rm -it -p1234:1234 $(IMAGE) echod
+
 postgres: .built
 	$(DOCKER) run --rm -it -p5432:5432 $(IMAGE) postgres
 

@@ -1,0 +1,40 @@
+#!/usr/bin/env escript
+%%! -noshell -noinput
+-mode(compile).
+-define(SCRIPT_NAME, filename:basename(escript:script_name())).
+-define(PRINT(STR, PARAMS), io:format("~s: " ++ STR ++ "~n", [?SCRIPT_NAME | PARAMS])).
+-define(TCP_OPTIONS, [binary, {active, false}, {reuseaddr, true}]).
+
+listen(Port) ->
+  io:format("Listening on port ~p...~n", [Port]),
+  Pid = spawn_link(fun() ->
+    {ok, Listen} = gen_tcp:listen(Port, ?TCP_OPTIONS),
+    spawn(fun() -> accept(Listen) end),
+    timer:sleep(infinity)
+  end),
+  {ok, Pid}.
+
+accept(ListenSocket) ->
+  {ok, Socket} = gen_tcp:accept(ListenSocket),
+  io:format("Accepted connection: ~p~n", [Socket]),
+  spawn(fun() -> accept(ListenSocket) end),
+  handle(Socket).
+
+handle(Socket) ->
+  inet:setopts(Socket, [{active, once}]),
+  receive
+    {tcp_closed, Socket} ->
+      io:format("Closed connection: ~p~n", [Socket]),
+      gen_tcp:close(Socket);
+    {tcp, Socket, <<"quit", _/binary>>} ->
+      io:format("Terminated session: ~p~n", [Socket]),
+      gen_tcp:close(Socket);
+    {tcp, Socket, Data} ->
+      io:format("Received data: ~p from ~p~n", [Data, Socket]),
+      gen_tcp:send(Socket, Data),
+      handle(Socket)
+  end.
+
+main(_) ->
+  {ok, _Pid} = listen(1234),
+  timer:sleep(infinity).

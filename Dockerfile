@@ -16,8 +16,9 @@ RUN /root/install.sh /root/packages.txt
 COPY .docker/configure.sh /root/
 RUN /root/configure.sh
 
-COPY .docker/bin/pg_ctl /usr/local/bin/pg_ctl
-COPY .docker/bin/postgres /usr/local/bin/postgres
+COPY .docker/bin/echod /usr/local/sbin/echod
+COPY .docker/bin/pg_ctl /usr/local/sbin/pg_ctl
+COPY .docker/bin/postgres /usr/local/sbin/postgres
 
 COPY .docker/entrypoint.sh /tmp/
 ENTRYPOINT ["/tmp/entrypoint.sh"]
