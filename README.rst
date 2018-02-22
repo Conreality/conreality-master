@@ -20,8 +20,9 @@ Prerequisites
 Runtime Prerequisites
 ---------------------
 
+* Avahi 0.6+
 * Erlang 20.2+
-* PostgreSQL 10.2+
-* PostGIS 2.4+
-* PL/Lua 1.1+
 * FreeSWITCH 1.6.19+
+* PL/Lua 1.1+
+* PostGIS 2.4+
+* PostgreSQL 10.2+
