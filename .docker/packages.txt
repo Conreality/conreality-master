@@ -1,5 +1,6 @@
 avahi
 avahi-tools
+dbus
 erlang
 freeswitch
 pllua
