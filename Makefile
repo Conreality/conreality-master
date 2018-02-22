@@ -37,12 +37,15 @@ shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
 echo: .built
-	$(DOCKER) run --rm -it -p1234:1234 $(IMAGE) echod
+	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
+
+freeswitch: .built
+	$(DOCKER) run --rm -it -p5060:5060 -p5080:5080 -p8021:8021/tcp -p16384-16484:16384-16484/udp $(IMAGE) freeswitch
 
 postgres: .built
-	$(DOCKER) run --rm -it -p5432:5432 $(IMAGE) postgres
+	$(DOCKER) run --rm -it -p5432:5432/tcp $(IMAGE) postgres
 
 .PHONY: check uninstall clean distclean mostlyclean
-.PHONY: shell postgres
+.PHONY: shell echo freeswitch postgres
 .SECONDARY:
 .SUFFIXES:

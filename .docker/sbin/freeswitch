@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /sbin/su-exec freeswitch /usr/bin/freeswitch "$@"
