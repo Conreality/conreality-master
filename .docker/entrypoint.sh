@@ -1,9 +1,14 @@
 #!/bin/sh
 
+# See: https://dbus.freedesktop.org/doc/dbus-uuidgen.1.html
+if [ ! -e /etc/machine-id ]; then
+  /usr/bin/dbus-uuidgen --ensure=/etc/machine-id
+fi
+
 # See: https://www.postgresql.org/docs/10/static/creating-cluster.html
 # See: https://www.postgresql.org/docs/10/static/app-pg-ctl.html
 # See: https://www.postgresql.org/docs/10/static/app-initdb.html
-if [ -z "$(ls -1A "$PGDATA")" ]; then
+if [ -z "$(ls -1A "$PGDATA" 2>/dev/null)" ]; then
   mkdir -p "$PGDATA"
   chown -R "$PGUSER:$PGUSER" "$PGDATA"
   chmod 700 "$PGDATA"
