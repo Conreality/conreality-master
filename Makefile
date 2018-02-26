@@ -36,6 +36,9 @@ mostlyclean: clean
 shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
+init: .built
+	$(DOCKER) run --rm -it $(IMAGE) s6-svscan /etc/s6
+
 echo: .built
 	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
 
