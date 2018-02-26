@@ -1,13 +1,4 @@
-avahi
-avahi-tools
-dbus
-dropbear
-dropbear-scp
-erlang
 freeswitch
 pllua
 postgis@testing
 postgresql
-s6
-s6-rc
-su-exec
