@@ -22,6 +22,7 @@ Runtime Prerequisites
 
 * Avahi 0.6+
 * D-Bus 1.10+
+* Dropbear 2017.75+
 * Erlang 20.2+
 * FreeSWITCH 1.6.19+
 * PL/Lua 1.1+
