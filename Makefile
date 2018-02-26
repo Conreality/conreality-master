@@ -39,6 +39,9 @@ shell: .built
 init: .built
 	$(DOCKER) run --rm -it $(IMAGE) s6-svscan /etc/s6
 
+ssh: .built
+	$(DOCKER) run --rm -it -p22:22 $(IMAGE) sshd
+
 echo: .built
 	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
 
@@ -49,6 +52,6 @@ postgres: .built
 	$(DOCKER) run --rm -it -p5432:5432/tcp $(IMAGE) postgres
 
 .PHONY: check uninstall clean distclean mostlyclean
-.PHONY: shell echo freeswitch postgres
+.PHONY: shell init ssh echo freeswitch postgres
 .SECONDARY:
 .SUFFIXES:

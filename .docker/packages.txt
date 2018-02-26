@@ -1,6 +1,8 @@
 avahi
 avahi-tools
 dbus
+dropbear
+dropbear-scp
 erlang
 freeswitch
 pllua
