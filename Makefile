@@ -37,7 +37,7 @@ shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
 init: .built
-	$(DOCKER) run --rm -it -p22:22/tcp -p5432:5432/tcp $(IMAGE) s6-svscan /etc/s6
+	$(DOCKER) run --rm -it -p22:22/tcp -p5432:5432/tcp $(IMAGE) init
 
 ssh: .built
 	$(DOCKER) run --rm -it -p22:22/tcp $(IMAGE) sshd

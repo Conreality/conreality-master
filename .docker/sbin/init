@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /bin/s6-svscan /etc/s6
