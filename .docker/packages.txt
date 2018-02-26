@@ -6,4 +6,6 @@ freeswitch
 pllua
 postgis@testing
 postgresql
+s6
+s6-rc
 su-exec
