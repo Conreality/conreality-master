@@ -33,25 +33,25 @@ distclean: clean
 
 mostlyclean: clean
 
-shell: .built
-	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
-
-init: .built
+boot: .built
 	$(DOCKER) run --rm -it -p22:22/tcp -p5432:5432/tcp $(IMAGE) init
 
-ssh: .built
-	$(DOCKER) run --rm -it -p22:22/tcp $(IMAGE) sshd
+exec-shell: .built
+	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
-echo: .built
-	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
+exec-dropbear: .built
+	$(DOCKER) run --rm -it -p22:22/tcp $(IMAGE) dropbear
 
-freeswitch: .built
+exec-freeswitch: .built
 	$(DOCKER) run --rm -it -p5060:5060 -p5080:5080 -p8021:8021/tcp -p16384-16484:16384-16484/udp $(IMAGE) freeswitch -np -nosql -nonat -nonatmap -c
 
-postgres: .built
+exec-postgres: .built
 	$(DOCKER) run --rm -it -p5432:5432/tcp $(IMAGE) postgres
 
+exec-echod: .built
+	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
+
 .PHONY: check uninstall clean distclean mostlyclean
-.PHONY: shell init ssh echo freeswitch postgres
+.PHONY: boot exec-shell exec-dropbear exec-freeswitch exec-postgres exec-echod
 .SECONDARY:
 .SUFFIXES:
