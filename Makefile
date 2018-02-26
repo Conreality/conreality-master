@@ -39,6 +39,9 @@ boot: .built
 exec-shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
+exec-dbus: .built
+	$(DOCKER) run --rm -it $(IMAGE) /usr/bin/dbus-daemon --system --nofork --nopidfile
+
 exec-dropbear: .built
 	$(DOCKER) run --rm -it -p22:22/tcp $(IMAGE) dropbear
 
@@ -52,6 +55,6 @@ exec-echod: .built
 	$(DOCKER) run --rm -it -p1234:1234/tcp $(IMAGE) echod
 
 .PHONY: check uninstall clean distclean mostlyclean
-.PHONY: boot exec-shell exec-dropbear exec-freeswitch exec-postgres exec-echod
+.PHONY: boot exec-shell exec-dbus exec-dropbear exec-freeswitch exec-postgres exec-echod
 .SECONDARY:
 .SUFFIXES:
