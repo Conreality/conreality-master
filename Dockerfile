@@ -23,4 +23,4 @@ COPY .docker/sbin/* /usr/local/sbin/
 COPY .docker/entrypoint.sh /tmp/
 ENTRYPOINT ["/tmp/entrypoint.sh"]
 
-CMD ["/bin/sh"]
+CMD ["init"]
