@@ -1,0 +1,2 @@
+#!/bin/execlineb -WP
+/bin/s6-svscanctl -t /etc/s6/services
