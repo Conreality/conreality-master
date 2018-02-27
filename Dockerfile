@@ -11,9 +11,8 @@ RUN /root/install.sh /root/packages.txt
 COPY .docker/configure.sh /root/
 RUN /root/configure.sh
 
-COPY .docker/etc/s6 /etc/s6/
-COPY .docker/bin/* /usr/local/bin/
-COPY .docker/sbin/* /usr/local/sbin/
+COPY .docker/etc /etc
+COPY .docker/usr/local /usr/local
 
 COPY .docker/entrypoint.sh /tmp/
 ENTRYPOINT ["/tmp/entrypoint.sh"]
