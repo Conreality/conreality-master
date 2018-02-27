@@ -40,7 +40,7 @@ exec-shell: .built
 	$(DOCKER) run --rm -it $(IMAGE) /bin/sh
 
 exec-dbus: .built
-	$(DOCKER) run --rm -it $(IMAGE) /usr/bin/dbus-daemon --system --nofork --nopidfile
+	$(DOCKER) run --rm -it $(IMAGE) dbus-daemon
 
 exec-dropbear: .built
 	$(DOCKER) run --rm -it -p22:22/tcp $(IMAGE) dropbear
