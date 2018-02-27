@@ -3,7 +3,7 @@ FROM conreality/docker:latest
 LABEL maintainer="Arto Bendiken <arto@conreality.org>"
 
 ENV PGUSER="postgres" PGDATA="/srv/postgres"
-EXPOSE 5432
+EXPOSE 22 5060 5080 5432 8021
 
 COPY .docker/install.sh .docker/packages.txt /root/
 RUN /root/install.sh /root/packages.txt

@@ -1,0 +1,3 @@
+#!/bin/execlineb -WP
+/sbin/su-exec freeswitch
+/usr/bin/freeswitch -nc -nf -np -nosql -nonat -nonatmap
