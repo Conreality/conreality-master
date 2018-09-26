@@ -6,8 +6,12 @@ defmodule Conreality.Master.Application do
   use Application
 
   def start(_type, _args) do
+    import Supervisor.Spec
+
     # List all child processes to be supervised
     children = [
+      supervisor(GRPC.Server.Supervisor, [{Conreality.Master.Server, 50051}]),
+
       # Starts a worker by calling: Conreality.Master.Worker.start_link(arg)
       # {Conreality.Master.Worker, arg},
     ]
