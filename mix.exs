@@ -47,8 +47,18 @@ defmodule Conreality.Master.MixProject do
 
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:cowboy, "~> 2.4"},
+      {:elixir_make, "~> 0.4.2"},
+      #{:extensor, "~> 0.1.5"}, # FIXME
+      {:flow, "~> 0.14.2"},
+      {:geo, "~> 3.0"},
+      {:geo_postgis, "~> 2.1"},
+      {:geohash, "~> 1.2"},
+      {:grpc, "~> 0.3.0-alpha.2"},
+      {:matrex, "~> 0.6.7"},
+      {:postgrex, "~> 0.13.5"},
+      {:protobuf, "~> 0.5.4"},
+      {:ranch, "~> 1.5"}, # TODO: upgrade to 1.6 (contingent on Cowboy)
     ]
   end
 end
