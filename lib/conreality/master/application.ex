@@ -10,7 +10,7 @@ defmodule Conreality.Master.Application do
 
     # List all child processes to be supervised
     children = [
-      supervisor(GRPC.Server.Supervisor, [{Conreality.Master.Server, 50051}]),
+      supervisor(GRPC.Server.Supervisor, [{[Conreality.Master.Public.Server, Conreality.Master.Session.Server], 50051}]),
 
       # Starts a worker by calling: Conreality.Master.Worker.start_link(arg)
       # {Conreality.Master.Worker, arg},
