@@ -47,18 +47,18 @@ defmodule Conreality.Master.MixProject do
 
   defp deps do
     [
-      {:cowboy, "~> 2.4"},
+      {:cowboy, "~> 2.5"},
       {:elixir_make, "~> 0.4.2"},
       #{:extensor, "~> 0.1.5"}, # FIXME
-      {:flow, "~> 0.14.2"},
+      {:flow, "~> 0.14.3"},
       {:geo, "~> 3.0"},
-      {:geo_postgis, "~> 2.1"},
+      {:geo_postgis, "~> 3.0"},
       {:geohash, "~> 1.2"},
-      {:grpc, "~> 0.3.0-alpha.2"},
+      {:grpc, "~> 0.3.1"},
       {:matrex, "~> 0.6.7"},
-      {:postgrex, "~> 0.13.5"},
+      {:postgrex, "~> 0.14.1"},
       {:protobuf, "~> 0.5.4"},
-      {:ranch, "~> 1.5"}, # TODO: upgrade to 1.6 (contingent on Cowboy)
+      {:ranch, "~> 1.6.2"}, # TODO: upgrade to 1.7 (contingent on grpc and cowboy)
     ]
   end
 end
