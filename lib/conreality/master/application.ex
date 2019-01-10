@@ -8,12 +8,10 @@ defmodule Conreality.Master.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    # List all child processes to be supervised
+    # List all child processes to be supervised:
     children = [
+      Postgrex.child_spec([name: DB, hostname: "localhost", database: "demo_master"]), # FIXME
       supervisor(GRPC.Server.Supervisor, [{[Conreality.Master.Public.Server, Conreality.Master.Session.Server], 50051}]),
-
-      # Starts a worker by calling: Conreality.Master.Worker.start_link(arg)
-      # {Conreality.Master.Worker, arg},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
