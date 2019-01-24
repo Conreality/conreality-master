@@ -10,7 +10,7 @@ defmodule Conreality.Master.Application do
 
     # List all child processes to be supervised:
     children = [
-      Postgrex.child_spec([name: DB, hostname: "localhost", database: "demo_master"]), # FIXME
+      Postgrex.child_spec([name: DB, hostname: "localhost", database: "demo"]), # FIXME
       supervisor(GRPC.Server.Supervisor, [{[Conreality.Master.Public.Server, Conreality.Master.Session.Server], 50051}]),
     ]
 
