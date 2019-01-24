@@ -1,6 +1,6 @@
 defmodule Conreality.Master.Session.Server do
   use GRPC.Server, service: Conreality.RPC.Session.Service
-  #alias GRPC.Server
+  alias GRPC.Server
 
   @spec ping(Conreality.RPC.Nothing.t(), GRPC.Server.Stream.t()) :: Conreality.RPC.Nothing.t()
   def ping(request, _stream) do
@@ -228,11 +228,18 @@ defmodule Conreality.Master.Session.Server do
   end
 
   @spec receive_events(Conreality.RPC.Nothing.t(), GRPC.Server.Stream.t()) :: any
-  def receive_events(request, _stream) do
+  def receive_events(request, stream) do
     IO.inspect [self(), :receive_events, request]
     {:ok, pid, ref} = listen("event")
     listen_loop(pid, ref, "event", fn(id) ->
       IO.inspect [self(), :receive_events, id] # TODO
+      Server.send_reply(stream, Conreality.RPC.Event.new(
+        id: 1,
+        timestamp: DateTime.utc_now |> DateTime.to_unix,
+        predicate: "started",
+        subject_id: 0,
+        object_id: 0
+      ))
     end)
   end
 
@@ -247,11 +254,24 @@ defmodule Conreality.Master.Session.Server do
   end
 
   @spec receive_messages(Conreality.RPC.Nothing.t(), GRPC.Server.Stream.t()) :: any
-  def receive_messages(request, _stream) do
+  def receive_messages(request, stream) do
     IO.inspect [self(), :receive_messages, request]
     {:ok, pid, ref} = listen("message")
     listen_loop(pid, ref, "message", fn(id) ->
-      IO.inspect [self(), :receive_messages, id] # TODO
+      #IO.inspect [self(), :receive_messages, :id, id]
+      case Postgrex.query!(DB, "SELECT id, timestamp, sender, recipient, text FROM conreality.message WHERE id = $1 LIMIT 1", [id]) do
+        %Postgrex.Result{num_rows: 0} -> nil
+        %Postgrex.Result{num_rows: 1, rows: [[id, timestamp, sender, recipient, text]]} ->
+          #IO.inspect [self(), :receive_messages, :row, [id, timestamp, sender, recipient, text]]
+          Server.send_reply(stream, Conreality.RPC.Message.new(
+            id: id,
+            timestamp: timestamp |> DateTime.to_unix,
+            sender_id: sender || 0,
+            recipient_id: recipient || 0,
+            language: "en", # TODO
+            text: text
+          ))
+      end
     end)
   end
 
