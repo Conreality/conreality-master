@@ -372,7 +372,7 @@ defmodule Conreality.Master.Server do
   end
 
   defp make_player([id, nick, rank]) do
-    Conreality.RPC.Player.new(id: id, nick: nick, rank: rank)
+    Conreality.RPC.Player.new(id: id, nick: nick, rank: rank || "")
   end
 
   defp make_target([id]) do
