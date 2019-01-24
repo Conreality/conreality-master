@@ -165,7 +165,7 @@ defmodule Conreality.Master.Server do
         end
     end
 
-    # TODO: subscribe to player who join in the future
+    # TODO: subscribe to players who join going forward
   end
 
   @spec update_player(Conreality.RPC.PlayerStatus.t(), GRPC.Server.Stream.t()) :: Conreality.RPC.Nothing.t()
@@ -227,7 +227,7 @@ defmodule Conreality.Master.Server do
         end
     end
 
-    # TODO: subscribe to units formed in the future
+    # TODO: subscribe to units formed going forward
   end
 
   # Targets
@@ -245,13 +245,20 @@ defmodule Conreality.Master.Server do
     Conreality.RPC.TargetID.new(id: target_id)
   end
 
-  @spec list_targets(Conreality.RPC.UnitID.t(), GRPC.Server.Stream.t()) :: Conreality.RPC.TargetIDList.t()
-  def list_targets(request, _stream) do
+  @spec list_targets(Conreality.RPC.UnitID.t(), GRPC.Server.Stream.t()) :: any
+  def list_targets(request, stream) do
     IO.inspect [self(), :list_targets, request]
 
-    result = Postgrex.query!(DB, "SELECT id FROM conreality.target ORDER BY id ASC", []) # TODO: filter by unit ID
-    values = result.rows |> Enum.map(&List.first/1) |> Enum.map(fn id -> Conreality.RPC.TargetID.new(id: id) end)
-    Conreality.RPC.TargetIDList.new(list: values)
+    # List all existing targets:
+    case Postgrex.query!(DB, "SELECT id FROM conreality.target ORDER BY id ASC", []) do # TODO: filter by request.id
+      %Postgrex.Result{num_rows: 0} -> nil
+      %Postgrex.Result{num_rows: _, rows: rows} ->
+        for row <- rows do
+          Server.send_reply(stream, make_target(row))
+        end
+    end
+
+    # TODO: subscribe to targets designated going forward
   end
 
   # Broadcasts
@@ -366,6 +373,10 @@ defmodule Conreality.Master.Server do
 
   defp make_player([id, nick, rank]) do
     Conreality.RPC.Player.new(id: id, nick: nick, rank: rank)
+  end
+
+  defp make_target([id]) do
+    Conreality.RPC.Target.new(id: id)
   end
 
   defp make_unit([id, name]) do
