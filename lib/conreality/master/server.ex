@@ -236,14 +236,19 @@ defmodule Conreality.Master.Server do
     IO.inspect [self(), :receive_events, request]
     {:ok, pid, ref} = listen("event")
     listen_loop(pid, ref, "event", fn(id) ->
-      IO.inspect [self(), :receive_events, id] # TODO
-      Server.send_reply(stream, Conreality.RPC.Event.new(
-        id: 1,
-        timestamp: DateTime.utc_now |> DateTime.to_unix,
-        predicate: "started",
-        subject_id: 0,
-        object_id: 0
-      ))
+      #IO.inspect [self(), :receive_events, :id, id]
+      case Postgrex.query!(DB, "SELECT id, timestamp, predicate, subject, object FROM conreality.event WHERE id = $1 LIMIT 1", [id]) do
+        %Postgrex.Result{num_rows: 0} -> nil
+        %Postgrex.Result{num_rows: 1, rows: [[id, timestamp, predicate, subject, object]]} ->
+          #IO.inspect [self(), :receive_events, :row, [id, timestamp, predicate, subject, object]]
+          Server.send_reply(stream, Conreality.RPC.Event.new(
+            id: id,
+            timestamp: timestamp |> DateTime.to_unix,
+            predicate: predicate,
+            subject_id: subject || 0,
+            object_id: object || 0
+          ))
+      end
     end)
   end
 
