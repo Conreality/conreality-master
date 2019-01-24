@@ -1,4 +1,8 @@
-defmodule Conreality.Master.Session.Server do
+defmodule Conreality.Master.Server do
+  @moduledoc """
+  Documentation for Conreality.Master.Server.
+  """
+
   use GRPC.Server, service: Conreality.RPC.Session.Service
   alias GRPC.Server
 
