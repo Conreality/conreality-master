@@ -225,9 +225,13 @@ defmodule Conreality.Master.Server do
   def send_event(request, _stream) do
     IO.inspect [self(), :send_event, request]
     query = "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id"
-    result = Postgrex.query!(DB, query, [request.predicate, request.subject_id.value, request.object_id.value])
+    result = Postgrex.query!(DB, query, [
+      request.predicate,
+      (if request.subject_id > 0, do: request.subject_id, else: nil),
+      (if request.object_id > 0, do: request.object_id, else: nil),
+    ])
     event_id = result.rows |> List.first |> List.first
-    Postgrex.query!(DB, "NOTIFY event, '#{event_id}'", [])
+    notify("event", event_id)
     Conreality.RPC.EventID.new(id: event_id)
   end
 
@@ -255,10 +259,15 @@ defmodule Conreality.Master.Server do
   @spec send_message(Conreality.RPC.Message.t(), GRPC.Server.Stream.t()) :: Conreality.RPC.MessageID.t()
   def send_message(request, _stream) do
     IO.inspect [self(), :send_message, request]
-    query = "INSERT INTO conreality.message (sender, recipient, text) VALUES ($1, $2, $3) RETURNING id"
-    result = Postgrex.query!(DB, query, [nil, nil, request.text]) # TODO: sender, recipient
+    query = "INSERT INTO conreality.message (sender, recipient, text, audio) VALUES ($1, $2, $3, $4) RETURNING id"
+    result = Postgrex.query!(DB, query, [
+      (if request.sender_id > 0, do: request.sender_id, else: nil),
+      (if request.recipient_id > 0, do: request.recipient_id, else: nil),
+      request.text,
+      nil, # TODO
+    ])
     message_id = result.rows |> List.first |> List.first
-    Postgrex.query!(DB, "NOTIFY message, '#{message_id}'", [])
+    notify("message", message_id)
     Conreality.RPC.MessageID.new(id: message_id)
   end
 
@@ -277,11 +286,15 @@ defmodule Conreality.Master.Server do
             timestamp: timestamp |> DateTime.to_unix,
             sender_id: sender || 0,
             recipient_id: recipient || 0,
-            language: "en", # TODO
+            language: nil, # TODO
             text: text
           ))
       end
     end)
+  end
+
+  defp notify(channel, id) do
+    Postgrex.query!(DB, "NOTIFY #{channel}, '#{id}'", [])
   end
 
   defp listen(channel) do
