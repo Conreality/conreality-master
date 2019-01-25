@@ -55,7 +55,7 @@ defmodule Conreality.Master.MixProject do
       {:geo_postgis, "~> 3.0"},
       {:geohash, "~> 1.2"},
       {:grpc, "~> 0.3.1"},
-      {:matrex, "~> 0.6.7"},
+      #{:matrex, "~> 0.6.7"},
       {:postgrex, "~> 0.14.1"},
       {:protobuf, "~> 0.5.4"},
       {:ranch, "~> 1.6.2"}, # TODO: upgrade to 1.7 (contingent on grpc and cowboy)
