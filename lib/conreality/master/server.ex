@@ -196,11 +196,41 @@ defmodule Conreality.Master.Server do
     # TODO: subscribe to players who join going forward
   end
 
+  @spec receive_player_statuses(Conreality.RPC.UnitID.t(), GRPC.Server.Stream.t()) :: any
+  def receive_player_statuses(request, stream) do
+    IO.inspect [self(), :receive_player_statuses, request]
+
+    # Subscribe to future statuses:
+    {:ok, pid, ref} = listen("player_status")
+
+    # Relay any future events:
+    listen_loop(pid, ref, "player_status", fn(id) ->
+      #IO.inspect [self(), :receive_player_statuses, :id, id]
+      case Postgrex.query!(DB, "SELECT id, timestamp, player, state, latitude, longitude, altitude FROM conreality.player_status WHERE id = $1 LIMIT 1", [id]) do
+        %Postgrex.Result{num_rows: 0} -> nil
+        %Postgrex.Result{num_rows: 1, rows: [row]} ->
+          #IO.inspect [self(), :receive_player_statuses, :row, row
+          Server.send_reply(stream, make_player_status(row))
+      end
+    end)
+  end
+
   @spec update_player(Conreality.RPC.PlayerStatus.t(), GRPC.Server.Stream.t()) :: Conreality.RPC.Nothing.t()
   def update_player(request, _stream) do
     IO.inspect [self(), :update_player, request]
 
-    # TODO
+    query = "INSERT INTO conreality.player_status (player, state, latitude, longitude, altitude) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+    result = Postgrex.query!(DB, query, [
+      request.player_id,
+      (if request.state != "", do: request.state, else: nil),
+      (if request.location, do: request.location.latitude, else: nil),
+      (if request.location, do: request.location.longitude, else: nil),
+      (if request.location, do: request.location.altitude, else: nil),
+    ])
+    status_id = result.rows |> List.first |> List.first
+
+    notify("player_status", status_id)
+
     Conreality.RPC.Nothing.new()
   end
 
@@ -302,7 +332,9 @@ defmodule Conreality.Master.Server do
       (if request.object_id > 0, do: request.object_id, else: nil),
     ])
     event_id = result.rows |> List.first |> List.first
+
     notify("event", event_id)
+
     Conreality.RPC.EventID.new(id: event_id)
   end
 
@@ -346,7 +378,9 @@ defmodule Conreality.Master.Server do
       nil, # TODO
     ])
     message_id = result.rows |> List.first |> List.first
+
     notify("message", message_id)
+
     Conreality.RPC.MessageID.new(id: message_id)
   end
 
@@ -407,6 +441,20 @@ defmodule Conreality.Master.Server do
       rank: rank || "",
       bio: bio || "",
       avatar: "" # TODO
+    )
+  end
+
+  defp make_player_status([_id, _timestamp, player, state, latitude, longitude, altitude]) do
+    Conreality.RPC.PlayerStatus.new(
+      player_id: player,
+      state: state || "",
+      headset: false,
+      heartrate: 0,
+      location: Conreality.RPC.Location.new(
+        latitude: latitude,
+        longitude: longitude,
+        altitude: altitude
+      )
     )
   end
 
