@@ -185,7 +185,7 @@ defmodule Conreality.Master.Server do
     IO.inspect [self(), :list_players, request]
 
     # List all existing players:
-    case Postgrex.query!(DB, "SELECT id, nick, rank FROM conreality.player ORDER BY id ASC", []) do # TODO: filter by request.id
+    case Postgrex.query!(DB, "SELECT id, nick, NULL as language, rank, NULL AS bio FROM conreality.player ORDER BY id ASC", []) do # TODO: filter by request.id
       %Postgrex.Result{num_rows: 0} -> nil
       %Postgrex.Result{num_rows: _, rows: rows} ->
         for row <- rows do
@@ -399,8 +399,15 @@ defmodule Conreality.Master.Server do
     )
   end
 
-  defp make_player([id, nick, rank]) do
-    Conreality.RPC.Player.new(id: id, nick: nick, rank: rank || "")
+  defp make_player([id, nick, language, rank, bio]) do
+    Conreality.RPC.Player.new(
+      id: id,
+      nick: nick,
+      language: language || "",
+      rank: rank || "",
+      bio: bio || "",
+      avatar: "" # TODO
+    )
   end
 
   defp make_target([id]) do
