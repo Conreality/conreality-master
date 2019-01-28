@@ -48,6 +48,7 @@ defmodule Conreality.Master.MixProject do
   defp deps do
     [
       {:cowboy, "~> 2.5"},
+      {:distillery, "~> 2.0"},
       {:elixir_make, "~> 0.4.2"},
       #{:extensor, "~> 0.1.5"}, # FIXME
       {:flow, "~> 0.14.3"},
