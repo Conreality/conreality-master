@@ -68,25 +68,20 @@ defmodule Conreality.Master.Server do
   def start_game(request, _stream) do
     IO.inspect [self(), :start_game, request]
 
-    {:ok, {event_id, message_id}} = Postgrex.transaction(DB, fn(conn) ->
+    {:ok, _} = Postgrex.transaction(DB, fn(conn) ->
       case Postgrex.query!(conn, "SELECT conreality.state() LIMIT 1", []).rows |> List.first |> List.first do
         "begin" -> nil
         "pause" ->
           Postgrex.query!(conn, "INSERT INTO conreality.state (action) VALUES ($1)", ["resume"])
-          event_id = Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["resumed", nil, nil]).rows |> List.first |> List.first
-          message_id = Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game resumed", "en-US"]).rows |> List.first |> List.first
-          {event_id, message_id}
+          Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["resumed", nil, nil])
+          Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game resumed", "en-US"])
         "resume" -> nil
         _ ->
           Postgrex.query!(conn, "INSERT INTO conreality.state (action) VALUES ($1)", ["begin"])
-          event_id = Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["begun", nil, nil]).rows |> List.first |> List.first
-          message_id = Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game started", "en-US"]).rows |> List.first |> List.first
-          {event_id, message_id}
+          Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["begun", nil, nil])
+          Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game started", "en-US"])
       end
     end)
-
-    if event_id, do: notify("event", event_id)
-    if message_id, do: notify("message", message_id)
 
     Conreality.RPC.Nothing.new()
   end
@@ -95,19 +90,15 @@ defmodule Conreality.Master.Server do
   def pause_game(request, _stream) do
     IO.inspect [self(), :pause_game, request]
 
-    {:ok, {event_id, message_id}} = Postgrex.transaction(DB, fn(conn) ->
+    {:ok, _} = Postgrex.transaction(DB, fn(conn) ->
       case Postgrex.query!(conn, "SELECT conreality.state() LIMIT 1", []).rows |> List.first |> List.first do
         "pause" -> nil
         _ ->
           Postgrex.query!(conn, "INSERT INTO conreality.state (action) VALUES ($1)", ["pause"])
-          event_id = Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["paused", nil, nil]).rows |> List.first |> List.first
-          message_id = Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game paused", "en-US"]).rows |> List.first |> List.first
-          {event_id, message_id}
+          Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["paused", nil, nil])
+          Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game paused", "en-US"])
       end
     end)
-
-    if event_id, do: notify("event", event_id)
-    if message_id, do: notify("message", message_id)
 
     Conreality.RPC.Nothing.new()
   end
@@ -116,19 +107,15 @@ defmodule Conreality.Master.Server do
   def stop_game(request, _stream) do
     IO.inspect [self(), :stop_game, request]
 
-    {:ok, {event_id, message_id}} = Postgrex.transaction(DB, fn(conn) ->
+    {:ok, _} = Postgrex.transaction(DB, fn(conn) ->
       case Postgrex.query!(conn, "SELECT conreality.state() LIMIT 1", []).rows |> List.first |> List.first do
         "end" -> nil
         _ ->
           Postgrex.query!(conn, "INSERT INTO conreality.state (action) VALUES ($1)", ["end"])
-          event_id = Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["ended", nil, nil]).rows |> List.first |> List.first
-          message_id = Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game stopped", "en-US"]).rows |> List.first |> List.first
-          {event_id, message_id}
+          Postgrex.query!(conn, "INSERT INTO conreality.event (predicate, subject, object) VALUES ($1, $2, $3) RETURNING id", ["ended", nil, nil])
+          Postgrex.query!(conn, "INSERT INTO conreality.message (text, language) VALUES ($1, $2) RETURNING id", ["Game stopped", "en-US"])
       end
     end)
-
-    if event_id, do: notify("event", event_id)
-    if message_id, do: notify("message", message_id)
 
     Conreality.RPC.Nothing.new()
   end
@@ -220,16 +207,13 @@ defmodule Conreality.Master.Server do
     IO.inspect [self(), :update_player, request]
 
     query = "INSERT INTO conreality.player_status (player, state, latitude, longitude, altitude) VALUES ($1, $2, $3, $4, $5) RETURNING id"
-    result = Postgrex.query!(DB, query, [
+    Postgrex.query!(DB, query, [
       request.player_id,
       (if request.state != "", do: request.state, else: nil),
       (if request.location, do: request.location.latitude, else: nil),
       (if request.location, do: request.location.longitude, else: nil),
       (if request.location, do: request.location.altitude, else: nil),
     ])
-    status_id = result.rows |> List.first |> List.first
-
-    notify("player_status", status_id)
 
     Conreality.RPC.Nothing.new()
   end
@@ -333,8 +317,6 @@ defmodule Conreality.Master.Server do
     ])
     event_id = result.rows |> List.first |> List.first
 
-    notify("event", event_id)
-
     Conreality.RPC.EventID.new(id: event_id)
   end
 
@@ -378,8 +360,6 @@ defmodule Conreality.Master.Server do
       nil, # TODO
     ])
     message_id = result.rows |> List.first |> List.first
-
-    notify("message", message_id)
 
     Conreality.RPC.MessageID.new(id: message_id)
   end
@@ -464,10 +444,6 @@ defmodule Conreality.Master.Server do
 
   defp make_unit([id, name]) do
     Conreality.RPC.Unit.new(id: id, name: name)
-  end
-
-  defp notify(channel, id) do
-    Postgrex.query!(DB, "NOTIFY #{channel}, '#{id}'", [])
   end
 
   defp listen(channel) do
