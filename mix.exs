@@ -59,6 +59,7 @@ defmodule Conreality.Master.MixProject do
       {:postgrex, "~> 0.14.1"},
       {:protobuf, "~> 0.5.4"},
       {:ranch, "~> 1.6.2"}, # TODO: upgrade to 1.7 (contingent on grpc and cowboy)
+      {:yaml_elixir, "~> 2.1"},
     ]
   end
 end
