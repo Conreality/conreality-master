@@ -206,13 +206,14 @@ defmodule Conreality.Master.Server do
   def update_player(request, _stream) do
     IO.inspect [self(), :update_player, request]
 
-    query = "INSERT INTO conreality.player_status (player, state, latitude, longitude, altitude) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+    query = "INSERT INTO conreality.player_status (player, state, latitude, longitude, altitude, heartrate) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
     Postgrex.query!(DB, query, [
       request.player_id,
       (if request.state != "", do: request.state, else: nil),
       (if request.location, do: request.location.latitude, else: nil),
       (if request.location, do: request.location.longitude, else: nil),
       (if request.location, do: request.location.altitude, else: nil),
+      request.heartrate,
     ])
 
     Conreality.RPC.Nothing.new()
