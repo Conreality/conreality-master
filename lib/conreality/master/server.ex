@@ -193,7 +193,7 @@ defmodule Conreality.Master.Server do
     # Relay any future events:
     listen_loop(pid, ref, "player_status", fn(id) ->
       #IO.inspect [self(), :receive_player_statuses, :id, id]
-      case Postgrex.query!(DB, "SELECT id, timestamp, player, state, latitude, longitude, altitude FROM conreality.player_status WHERE id = $1 LIMIT 1", [id]) do
+      case Postgrex.query!(DB, "SELECT id, timestamp, player, state, latitude, longitude, altitude, heartrate FROM conreality.player_status WHERE id = $1 LIMIT 1", [id]) do
         %Postgrex.Result{num_rows: 0} -> nil
         %Postgrex.Result{num_rows: 1, rows: [row]} ->
           #IO.inspect [self(), :receive_player_statuses, :row, row
@@ -424,12 +424,12 @@ defmodule Conreality.Master.Server do
     )
   end
 
-  defp make_player_status([_id, _timestamp, player, state, latitude, longitude, altitude]) do
+  defp make_player_status([_id, _timestamp, player, state, latitude, longitude, altitude, heartrate]) do
     Conreality.RPC.PlayerStatus.new(
       player_id: player,
       state: state || "",
       headset: false,
-      heartrate: 0,
+      heartrate: heartrate || 0,
       location: Conreality.RPC.Location.new(
         latitude: latitude,
         longitude: longitude,
