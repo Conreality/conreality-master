@@ -5,10 +5,19 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/grandcat/zeroconf"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+const name = "conreality"
+const port = 5555
+const version = "0.0.0" // FIXME
+const defaultTimeout = 10
 
 var configFile string
 var debug bool
@@ -18,7 +27,7 @@ var verbose bool
 var RootCmd = &cobra.Command{
 	Use:     "conreald",
 	Short:   "Conreality Master",
-	Version: "0.0.0", // FIXME
+	Version: version,
 }
 
 // Execute implements the `conreald` command
@@ -26,6 +35,28 @@ func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	meta := []string{
+		"version=" + version,
+	}
+	mdnsServer, err := zeroconf.Register(name, "_conreality._tcp", "local.", 5555, meta, nil)
+	if err != nil {
+		panic(err)
+	}
+	defer mdnsServer.Shutdown()
+
+	sigterm := make(chan os.Signal, 1)
+	signal.Notify(sigterm, os.Interrupt, syscall.SIGTERM)
+	var timeout <-chan time.Time
+	if defaultTimeout > 0 {
+		timeout = time.After(time.Second * time.Duration(defaultTimeout))
+	}
+
+	select {
+	case <-sigterm:
+		fmt.Println()
+	case <-timeout:
 	}
 }
 
