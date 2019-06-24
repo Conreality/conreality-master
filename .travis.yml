@@ -1,0 +1,17 @@
+# See: https://drycop.org
+language: go
+go:
+  - 1.12
+git:
+  depth: 1
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+install:
+  - go get -u github.com/dryproject/drycop/drycop
+  - go get -t -v ./...
+script:
+  - drycop init -v -L go
+  - drycop check -v -B go -L go -F none -I .github
+  - drycop test -v -B go
