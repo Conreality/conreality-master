@@ -4,18 +4,23 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/conreality/conreality-master/rpc"
+	"github.com/conreality/conreality-master/server"
 	"github.com/grandcat/zeroconf"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 )
 
 const version = "0.0.0" // FIXME
 
 const name = "conreality"
+const host = "0.0.0.0"
 const port = 5555
 
 var configFile string
@@ -36,10 +41,10 @@ func Execute() {
 		os.Exit(1)
 	}
 
-	meta := []string{
-		"version=" + version,
-	}
-	mdnsServer, err := zeroconf.Register(name, "_conreality._tcp", "local.", 5555, meta, nil)
+	go startRPCServer()
+
+	meta := []string{fmt.Sprintf("version=%s", version)}
+	mdnsServer, err := zeroconf.Register(name, "_conreality._tcp", "local.", port, meta, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -51,6 +56,21 @@ func Execute() {
 	select {
 	case <-sigterm:
 		fmt.Println()
+	}
+}
+
+func startRPCServer() {
+	grpcServer := grpc.NewServer()
+	rpc.RegisterChatServer(grpcServer, &server.ChatServer{})
+
+	tcpListener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
+	if err != nil {
+		panic(err)
+	}
+
+	err = grpcServer.Serve(tcpListener)
+	if err != nil {
+		panic(err)
 	}
 }
 
