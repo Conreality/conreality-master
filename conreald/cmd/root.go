@@ -7,17 +7,16 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/grandcat/zeroconf"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+const version = "0.0.0" // FIXME
+
 const name = "conreality"
 const port = 5555
-const version = "0.0.0" // FIXME
-const defaultTimeout = 10
 
 var configFile string
 var debug bool
@@ -48,15 +47,10 @@ func Execute() {
 
 	sigterm := make(chan os.Signal, 1)
 	signal.Notify(sigterm, os.Interrupt, syscall.SIGTERM)
-	var timeout <-chan time.Time
-	if defaultTimeout > 0 {
-		timeout = time.After(time.Second * time.Duration(defaultTimeout))
-	}
 
 	select {
 	case <-sigterm:
 		fmt.Println()
-	case <-timeout:
 	}
 }
 
