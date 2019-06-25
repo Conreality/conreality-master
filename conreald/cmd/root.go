@@ -32,31 +32,24 @@ var RootCmd = &cobra.Command{
 	Use:     "conreald",
 	Short:   "Conreality Master",
 	Version: version,
-}
+	Run: func(cmd *cobra.Command, args []string) {
+		go startRPCServer()
 
-// Execute implements the `conreald` command
-func Execute() {
-	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+		meta := []string{fmt.Sprintf("version=%s", version)}
+		mdnsServer, err := zeroconf.Register(name, "_conreality._tcp", "local.", port, meta, nil)
+		if err != nil {
+			panic(err)
+		}
+		defer mdnsServer.Shutdown()
 
-	go startRPCServer()
+		sigterm := make(chan os.Signal, 1)
+		signal.Notify(sigterm, os.Interrupt, syscall.SIGTERM)
 
-	meta := []string{fmt.Sprintf("version=%s", version)}
-	mdnsServer, err := zeroconf.Register(name, "_conreality._tcp", "local.", port, meta, nil)
-	if err != nil {
-		panic(err)
-	}
-	defer mdnsServer.Shutdown()
-
-	sigterm := make(chan os.Signal, 1)
-	signal.Notify(sigterm, os.Interrupt, syscall.SIGTERM)
-
-	select {
-	case <-sigterm:
-		fmt.Println()
-	}
+		select {
+		case <-sigterm:
+			fmt.Println()
+		}
+	},
 }
 
 func startRPCServer() {
@@ -102,5 +95,13 @@ func initConfig() {
 		if debug {
 			fmt.Println("Using config file:", viper.ConfigFileUsed())
 		}
+	}
+}
+
+// Execute implements the `conreald` command
+func Execute() {
+	if err := RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
